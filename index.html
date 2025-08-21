@@ -96,7 +96,7 @@
     .tab { padding: 8px 12px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.16); background: rgba(255,255,255,0.06); cursor: pointer; font-weight: 700; }
     .tab.active { background: linear-gradient(135deg, rgba(124,92,255,0.38), rgba(53,208,255,0.26)); }
 
-    .modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.55); display: none; align-items: center; justify-content: center; z-index: 50; }
+    .modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.68); display: none; align-items: center; justify-content: center; z-index: 50; }
     .modal { width: min(560px, 92vw); background: linear-gradient(180deg, rgba(255,255,255,0.14), rgba(255,255,255,0.10)); border: 1px solid rgba(255,255,255,0.22); border-radius: 16px; box-shadow: var(--shadow); padding: 16px; }
     .modal h3 { margin-top: 0; }
     .modal .grid { display: grid; gap: 10px; }
@@ -111,7 +111,7 @@
 <body>
   <div class="app">
     <header class="topbar">
-      <div class="brand"><div class="logo"></div> KotoKombat <span class="muted">v2.0 (Firebase)</span></div>
+      <div class="brand"><div class="logo"></div> KotoKombat <span class="muted">v3.0 (Firebase) — Daily & Boosts</span></div>
       <div class="statline">
         <div class="pill">💰 Монеты: <span id="coins" class="num">0</span></div>
         <div class="pill">⚡ Энергия: <span id="energyText" class="num">0/0</span></div>
@@ -151,6 +151,32 @@
         <div class="list" id="achievements"></div>
       </div>
     </section>
+
+
+    <section class="col">
+      <div class="card solid">
+        <h2>⚡ Усилители & Ежедневное</h2>
+        <div class="list">
+          <div class="row">
+            <div>
+              <div class="title">Turbo Paws (клики x2 на 20 сек)</div>
+              <div class="subtitle">Цена: 30 энергии • КД 90 сек. Статус: <span id="boostStatus">готово</span></div>
+            </div>
+            <div class="actions">
+              <button class="buy" id="boostBtn">Активировать</button>
+            </div>
+          </div>
+          <div class="row">
+            <div>
+              <div class="title">Ежедневный сундук</div>
+              <div class="subtitle">Получай случайно 250–750 монет раз в 20 часов. Статус: <span id="dailyStatus">доступен?</span></div>
+            </div>
+            <div class="actions">
+              <button class="buy" id="dailyBtn">Забрать</button>
+            </div>
+          </div>
+        </div>
+      </div>
 
     <section class="col">
       <div class="card">
@@ -274,7 +300,9 @@
       const mults = petMultipliers(S);
       const base = (S.clickBase + S.clickBonus);
       const upgradeMult = Math.pow(2, S.upgrades.cpc1 || 0);
-      return Math.max(1, Math.floor(base * upgradeMult * mults.clickMult));
+      let val = Math.max(1, Math.floor(base * upgradeMult * mults.clickMult));
+      if((S?.boostUntil||0) > Date.now()) val *= 2; // turbo paws
+      return val;
     }
 
     function totalCps(S){
@@ -474,15 +502,14 @@
     }
 
     async function doClick(){
-      await txUpdate(d=>{
-        const me = maxEnergy(d); if(d.energy < 1) return d;
-        d.energy = clamp(d.energy - 1, 0, me);
-        d._clicks = (d._clicks||0) + 1;
-        d.coins += clickValue(d);
-        d.lastActive = serverTimestamp();
-        return d;
-      });
-      pulseCoin(clickValue(S));
+      if(!S) return;
+      const me = maxEnergy(S); if(S.energy < 1) return;
+      const gain = clickValue(S);
+      S.energy = clamp(S.energy - 1, 0, me);
+      S._clicks = (S._clicks||0) + 1;
+      S.coins += gain;
+      renderTop();
+      pulseCoin(gain);
     }
 
     async function buyPet(p, cost){
@@ -507,21 +534,35 @@
       await txUpdate(d=>{ if(d.achievements?.[a.key]) return d; if(!a.cond(d)) return d; d.achievements = d.achievements||{}; d.achievements[a.key]=true; d.coins += a.reward; return d; });
     }
 
-    // Passive income & energy regen — apply every 2 сек, чтобы не спамить запись
-    setInterval(async ()=>{
-      if(!S || !UID) return;
+    // v3: Local ticker (no Firestore writes) every 1s; batched save every 12s.
+    let lastSave = 0; let lastSnapshotWrite = 0; // to ignore echo snapshots
+    setInterval(()=>{
+      if(!S) return;
       const cps = totalCps(S);
       const regen = regenEnergy(S);
-      await txUpdate(d=>{
-        const dt = Math.min(10, Math.max(1, Math.round((Date.now()-d.lastTick)/1000)));
-        d.coins += cps * dt;
-        d.energy = clamp(d.energy + regen*dt, 0, maxEnergy(d));
-        d.playtimeSec += dt;
-        d.lastTick = Date.now();
-        d.lastActive = serverTimestamp();
-        return d;
-      });
-    }, 2000);
+      const dt = 1;
+      S.coins += cps * dt;
+      S.energy = clamp(S.energy + regen*dt, 0, maxEnergy(S));
+      S.playtimeSec = (S.playtimeSec||0) + dt;
+      S.lastTick = Date.now();
+      renderTop();
+    }, 1000);
+
+    // Throttled saver — write diff fields only
+    setInterval(async ()=>{
+      if(!S || !UID) return;
+      const ref = doc(db, 'users', UID);
+      try {
+        await setDoc(ref, {
+          coins: Math.floor(S.coins),
+          energy: Math.floor(S.energy),
+          playtimeSec: Math.floor(S.playtimeSec||0),
+          lastTick: S.lastTick,
+          lastActive: serverTimestamp()
+        }, { merge: true });
+        lastSave = Date.now();
+      } catch(e){ console.warn('save skipped', e); }
+    }, 12000);
 
     // ===== Airdrop requests (stored in Firestore) =====
     function openModal(){ modalBackdrop.style.display='flex'; airId.value = UID; airReason.value=''; airAmount.value=''; }
@@ -552,6 +593,62 @@
         airdropList.appendChild(row);
       });
     };
+
+    
+    // ===== v3: Boosts & Daily =====
+    const boostBtn = document.getElementById('boostBtn');
+    const boostStatus = document.getElementById('boostStatus');
+    const dailyBtn = document.getElementById('dailyBtn');
+    const dailyStatus = document.getElementById('dailyStatus');
+
+    function isBoostActive() { return (S?.boostUntil||0) > Date.now(); }
+    function boostCooldownLeft() { return Math.max(0, (S?.boostCdUntil||0) - Date.now()); }
+
+    function updateBoostUI(){
+      if(!S) return;
+      if(isBoostActive()){
+        boostStatus.textContent = 'активен ' + Math.ceil((S.boostUntil - Date.now())/1000) + 'с';
+      } else {
+        const cd = boostCooldownLeft();
+        boostStatus.textContent = cd>0 ? ('кд ' + Math.ceil(cd/1000) + 'с') : 'готово';
+      }
+      document.getElementById('clickGain').textContent = fmt(clickValue(S));
+      document.getElementById('cpc').textContent = fmt(clickValue(S));
+    }
+    setInterval(updateBoostUI, 500);
+
+    boostBtn.onclick = ()=>{
+      if(!S) return;
+      if(boostCooldownLeft()>0){ return; }
+      if(S.energy < 30){ alert('Нужно 30 энергии.'); return; }
+      S.energy -= 30;
+      const nowTs = Date.now();
+      S.boostUntil = nowTs + 20000; // 20s
+      S.boostCdUntil = nowTs + 90000; // 90s
+      renderTop();
+      updateBoostUI();
+    };
+
+    function canClaimDaily(){
+      const last = S?.dailyClaimAt || 0;
+      const leftMs = (last + 20*60*60*1000) - Date.now(); // 20h cooldown
+      return leftMs <= 0;
+    }
+    function updateDailyUI(){
+      dailyStatus.textContent = canClaimDaily()? 'доступен' : 'ожидание';
+    }
+    setInterval(updateDailyUI, 2000);
+
+    dailyBtn.onclick = ()=>{
+      if(!S) return;
+      if(!canClaimDaily()) return;
+      const reward = Math.floor(250 + Math.random()*500);
+      S.coins += reward;
+      S.dailyClaimAt = Date.now();
+      alert('Награда: ' + reward + ' монет!');
+      renderTop();
+    };
+
 
     // ===== FX & helpers =====
     const clickArea = document.getElementById('clickArea');
