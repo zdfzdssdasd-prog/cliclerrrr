@@ -4,13 +4,13 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>KotoKombat — котокролики & монеты</title>
-  <meta name="description" content="KotoKombat — кликер про котокроликов, апгрейды и бизнесы. Сохранение, оффлайн-доход, уникальный ID, airdrop-заявки." />
+  <meta name="description" content="KotoKombat — кликер про котокроликов, апгрейды и бизнесы. Сохранение в Firebase, оффлайн-доход, уникальный ID, airdrop-заявки." />
   <style>
     :root {
       --bg1: #0f1224;
       --bg2: #1b1f3a;
-      --card: rgba(255,255,255,0.06);
-      --card-strong: rgba(255,255,255,0.12);
+      --card: rgba(255,255,255,0.08);
+      --card-strong: rgba(255,255,255,0.16);
       --accent: #7c5cff;
       --accent2: #35d0ff;
       --good: #5CFF95;
@@ -23,7 +23,7 @@
       --shadow: 0 10px 30px rgba(0,0,0,0.35);
       --radius: 18px;
       --radius-sm: 12px;
-      --blur: saturate(1.2) blur(6px);
+      --blur: saturate(1.1) blur(6px);
     }
 
     * { box-sizing: border-box; }
@@ -46,8 +46,8 @@
     header.topbar {
       grid-column: 1 / -1;
       display: flex; align-items: center; justify-content: space-between;
-      background: linear-gradient(135deg, rgba(124,92,255,0.25), rgba(53,208,255,0.12));
-      border: 1px solid rgba(255,255,255,0.12);
+      background: linear-gradient(135deg, rgba(124,92,255,0.28), rgba(53,208,255,0.18));
+      border: 1px solid rgba(255,255,255,0.14);
       box-shadow: var(--shadow);
       padding: 12px 16px; border-radius: var(--radius);
       position: sticky; top: 8px; backdrop-filter: var(--blur); z-index: 10;
@@ -62,79 +62,42 @@
     }
 
     .statline { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
-    .pill {
-      background: linear-gradient(135deg, var(--card), transparent);
-      border: 1px solid rgba(255,255,255,0.14);
-      padding: 8px 12px; border-radius: 999px; font-weight: 600; color: var(--text);
-      display: inline-flex; gap: 8px; align-items: center; box-shadow: var(--shadow);
-    }
+    .pill { background: linear-gradient(135deg, var(--card), transparent); border: 1px solid rgba(255,255,255,0.16); padding: 8px 12px; border-radius: 999px; font-weight: 600; color: var(--text); display: inline-flex; gap: 8px; align-items: center; box-shadow: var(--shadow); }
     .pill .num { font-variant-numeric: tabular-nums; }
 
     .col { display: flex; flex-direction: column; gap: 16px; }
-    .card {
-      background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.03));
-      border: 1px solid rgba(255,255,255,0.12);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow); padding: 16px; position: relative; overflow: hidden;
-    }
+    .card { background: linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.04)); border: 1px solid rgba(255,255,255,0.16); border-radius: var(--radius); box-shadow: var(--shadow); padding: 16px; position: relative; overflow: hidden; }
+    .card.solid { background: linear-gradient(180deg, rgba(255,255,255,0.18), rgba(255,255,255,0.12)); }
 
     h2 { margin: 0 0 10px; font-size: 18px; letter-spacing: 0.3px; }
     .muted { color: var(--muted); font-size: 14px; }
 
-    /* Click area */
-    .click-area {
-      display: grid; place-items: center; min-height: 340px;
-      border-radius: var(--radius);
-      background: radial-gradient(400px 180px at 50% 0%, rgba(124,92,255,0.15), rgba(124,92,255,0)),
-                  radial-gradient(400px 180px at 50% 100%, rgba(53,208,255,0.12), rgba(53,208,255,0)),
-                  linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
-      border: 1px dashed rgba(255,255,255,0.14);
-      position: relative; overflow: hidden;
-    }
-    .big-btn {
-      border: none; cursor: pointer; padding: 18px 26px; border-radius: 20px;
-      background: linear-gradient(135deg, #8c6bff, #35d0ff);
-      color: #0b0e1e; font-weight: 900; letter-spacing: 0.5px; font-size: 20px;
-      box-shadow: 0 8px 20px rgba(53,208,255,0.25), 0 2px 0 rgba(0,0,0,0.25) inset;
-      transition: transform 0.08s ease, filter 0.2s ease;
-      user-select: none;
-    }
+    .click-area { display: grid; place-items: center; min-height: 340px; border-radius: var(--radius); background: radial-gradient(400px 180px at 50% 0%, rgba(124,92,255,0.15), rgba(124,92,255,0)), radial-gradient(400px 180px at 50% 100%, rgba(53,208,255,0.12), rgba(53,208,255,0)), linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); border: 1px dashed rgba(255,255,255,0.16); position: relative; overflow: hidden; }
+    .big-btn { border: none; cursor: pointer; padding: 18px 26px; border-radius: 20px; background: linear-gradient(135deg, #8c6bff, #35d0ff); color: #0b0e1e; font-weight: 900; letter-spacing: 0.5px; font-size: 20px; box-shadow: 0 8px 20px rgba(53,208,255,0.25), 0 2px 0 rgba(0,0,0,0.25) inset; transition: transform 0.08s ease, filter 0.2s ease; user-select: none; }
     .big-btn:active { transform: translateY(1px) scale(0.995); filter: brightness(0.95); }
 
     .floating { position: absolute; font-weight: 800; pointer-events: none; opacity: 0; animation: pop 900ms ease forwards; }
-    @keyframes pop { 0% { transform: translateY(0) scale(0.6); opacity: 0; }
-                     15% { opacity: 1; }
-                     100% { transform: translateY(-40px) scale(1); opacity: 0; } }
+    @keyframes pop { 0% { transform: translateY(0) scale(0.6); opacity: 0; } 15% { opacity: 1; } 100% { transform: translateY(-40px) scale(1); opacity: 0; } }
 
-    /* Progress bars */
-    .bar { height: 12px; background: rgba(255,255,255,0.08); border-radius: 999px; overflow: hidden; border: 1px solid rgba(255,255,255,0.14); }
+    .bar { height: 12px; background: rgba(255,255,255,0.10); border-radius: 999px; overflow: hidden; border: 1px solid rgba(255,255,255,0.16); }
     .bar > .fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent2)); width: 0%; transition: width 0.25s ease; }
     .bar.energy > .fill { background: linear-gradient(90deg, #8affff, #35d0ff); }
 
-    /* Lists */
     .list { display: grid; gap: 10px; }
-    .row { display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: center; padding: 10px; border-radius: var(--radius-sm);
-           background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02)); border: 1px solid rgba(255,255,255,0.12); }
+    .row { display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: center; padding: 10px; border-radius: var(--radius-sm); background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.03)); border: 1px solid rgba(255,255,255,0.16); }
     .row .title { font-weight: 700; }
     .row .subtitle { font-size: 13px; color: var(--muted); }
     .row .actions { display: flex; gap: 8px; align-items: center; }
 
-    button.buy {
-      border: 1px solid rgba(255,255,255,0.22);
-      background: linear-gradient(135deg, rgba(124,92,255,0.25), rgba(53,208,255,0.2));
-      color: var(--text); border-radius: 12px; padding: 8px 12px; cursor: pointer; font-weight: 700;
-      transition: transform 0.08s ease, filter 0.2s ease; box-shadow: var(--shadow); white-space: nowrap;
-    }
+    button.buy { border: 1px solid rgba(255,255,255,0.22); background: linear-gradient(135deg, rgba(124,92,255,0.30), rgba(53,208,255,0.24)); color: var(--text); border-radius: 12px; padding: 8px 12px; cursor: pointer; font-weight: 700; transition: transform 0.08s ease, filter 0.2s ease; box-shadow: var(--shadow); white-space: nowrap; }
     button.buy:disabled { filter: grayscale(0.8) opacity(0.6); cursor: not-allowed; }
 
-    /* Tabs */
     .tabs { display: flex; gap: 8px; margin-bottom: 8px; flex-wrap: wrap; }
-    .tab { padding: 8px 12px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.14); background: rgba(255,255,255,0.04); cursor: pointer; font-weight: 700; }
-    .tab.active { background: linear-gradient(135deg, rgba(124,92,255,0.35), rgba(53,208,255,0.22)); }
+    .tab { padding: 8px 12px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.16); background: rgba(255,255,255,0.06); cursor: pointer; font-weight: 700; }
+    .tab.active { background: linear-gradient(135deg, rgba(124,92,255,0.38), rgba(53,208,255,0.26)); }
 
-    /* Modal */
     .modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.55); display: none; align-items: center; justify-content: center; z-index: 50; }
-    .modal { width: min(560px, 92vw); background: linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.04)); border: 1px solid rgba(255,255,255,0.16); border-radius: 16px; box-shadow: var(--shadow); padding: 16px; }
+    .modal { width: min(560px, 92vw); background: linear-gradient(180deg, rgba(255,255,255,0.14), rgba(255,255,255,0.10)); border: 1px solid rgba(255,255,255,0.22); border-radius: 16px; box-shadow: var(--shadow); padding: 16px; }
     .modal h3 { margin-top: 0; }
     .modal .grid { display: grid; gap: 10px; }
     .modal label { font-size: 14px; color: var(--muted); }
@@ -142,27 +105,22 @@
 
     .footer { grid-column: 1 / -1; text-align: center; color: var(--muted); padding: 8px; font-size: 13px; }
 
-    /* Responsive */
-    @media (max-width: 1100px) {
-      .app { grid-template-columns: 1fr; }
-      header.topbar { position: static; }
-    }
+    @media (max-width: 1100px) { .app { grid-template-columns: 1fr; } header.topbar { position: static; } }
   </style>
 </head>
 <body>
   <div class="app">
     <header class="topbar">
-      <div class="brand"><div class="logo"></div> KotoKombat <span class="muted">v1.0</span></div>
+      <div class="brand"><div class="logo"></div> KotoKombat <span class="muted">v2.0 (Firebase)</span></div>
       <div class="statline">
         <div class="pill">💰 Монеты: <span id="coins" class="num">0</span></div>
         <div class="pill">⚡ Энергия: <span id="energyText" class="num">0/0</span></div>
         <div class="pill">🐾 Котокролики: <span id="petsCount" class="num">0</span></div>
         <div class="pill">🏪 Бизнесы: <span id="bizCount" class="num">0</span></div>
-        <div class="pill">🆔 ID: <span id="playerId" class="num"></span></div>
+        <div class="pill">🆔 UID: <span id="playerId" class="num"></span></div>
       </div>
     </header>
 
-    <!-- Left column: Pets & Upgrades -->
     <section class="col">
       <div class="card">
         <h2>🐾 Котокролики</h2>
@@ -178,7 +136,6 @@
       </div>
     </section>
 
-    <!-- Middle column: Click area & info -->
     <section class="col">
       <div class="card click-area" id="clickArea">
         <button class="big-btn" id="clickBtn">КЛИК — +<span id="clickGain">1</span> 💰</button>
@@ -195,7 +152,6 @@
       </div>
     </section>
 
-    <!-- Right column: Businesses, Airdrop, Profile -->
     <section class="col">
       <div class="card">
         <h2>🏪 Бизнесы</h2>
@@ -203,38 +159,38 @@
         <div class="list" id="bizList"></div>
       </div>
 
-      <div class="card">
-        <h2>🪂 Airdrop</h2>
-        <div class="muted">Отправьте заявку на airdrop монет. (Локальная симуляция без сервера)</div>
+      <div class="card solid">
+        <h2>🪂 Airdrop (онлайн)</h2>
+        <div class="muted">Заявка уходит в Firestore. Админ может одобрить и начислить монеты.</div>
         <div class="list">
           <button class="buy" id="airdropOpen">Создать заявку</button>
-          <button class="buy" id="exportAirdrops">Экспорт заявок (JSON)</button>
+          <button class="buy" id="myReq">Мои заявки</button>
           <div class="muted" id="airdropCount">Заявок: 0</div>
+          <div id="airdropList" class="list"></div>
         </div>
       </div>
 
       <div class="card">
         <h2>👤 Профиль</h2>
         <div class="list">
-          <div class="row"><div><div class="title">Уникальный ID</div><div class="subtitle" id="profileId"></div></div><div class="actions"><button class="buy" id="copyId">Скопировать</button></div></div>
+          <div class="row"><div><div class="title">UID</div><div class="subtitle" id="profileId">—</div></div><div class="actions"><button class="buy" id="copyId">Скопировать</button></div></div>
           <div class="row"><div><div class="title">Дата регистрации</div><div class="subtitle" id="joinDate">—</div></div></div>
           <div class="row"><div><div class="title">Время в игре</div><div class="subtitle" id="playtime">0 мин</div></div></div>
           <div class="row"><div><div class="title">Оффлайн-доход</div><div class="subtitle" id="offlineInfo">—</div></div></div>
-          <div class="row"><div><div class="title">Сохранение</div><div class="subtitle">Автосейв каждые 15 сек, можно экспорт/импорт.</div></div>
-            <div class="actions"><button class="buy" id="exportSave">Экспорт</button><button class="buy" id="importSave">Импорт</button><button class="buy" id="wipe">Сброс</button></div></div>
+          <div class="row"><div><div class="title">Экспорт локального кэша</div><div class="subtitle">Только для резервной копии UI-состояния.</div></div>
+            <div class="actions"><button class="buy" id="exportCache">Экспорт</button><button class="buy" id="wipeCache">Сброс кэша</button></div></div>
         </div>
       </div>
     </section>
 
-    <div class="footer">© 2025 KotoKombat — сделано с любовью к котокроликам 🐱🐇</div>
+    <div class="footer">© 2025 KotoKombat — Firebase версия. 🐱🐇</div>
   </div>
 
-  <!-- Modal Airdrop -->
   <div class="modal-backdrop" id="modalBackdrop">
     <div class="modal">
       <h3>Заявка на Airdrop</h3>
       <div class="grid">
-        <label>Ваш ID</label>
+        <label>Ваш UID</label>
         <input id="air_id" type="text" readonly />
         <label>Причина</label>
         <textarea id="air_reason" rows="3" placeholder="Почему вы хотите airdrop?"></textarea>
@@ -248,51 +204,33 @@
     </div>
   </div>
 
-  <script>
+  <script type="module">
+    // ===== Firebase SDK (modular) =====
+    // 1) Создай проект в Firebase и включи Authentication (Anonymous) и Firestore (режим с правилами ниже).
+    // 2) Заполни конфиг ниже своими значениями.
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    import { getFirestore, doc, setDoc, getDoc, onSnapshot, runTransaction, serverTimestamp, collection, addDoc, query, where, getDocs, orderBy } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "PASTE_YOUR_API_KEY",
+      authDomain: "YOUR_PROJECT.firebaseapp.com",
+      projectId: "YOUR_PROJECT_ID",
+      storageBucket: "YOUR_PROJECT.appspot.com",
+      messagingSenderId: "YOUR_SENDER_ID",
+      appId: "YOUR_APP_ID"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
     // ===== Utilities =====
-    const fmt = n => n.toLocaleString('ru-RU');
+    const fmt = n => Number(n||0).toLocaleString('ru-RU');
     const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
     const now = () => Date.now();
-    const uuidv4 = () => crypto.randomUUID ? crypto.randomUUID() : 'xxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
-      const r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8); return v.toString(16);
-    });
 
-    function saveToFile(filename, content) {
-      const blob = new Blob([content], {type: 'application/json'});
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url; a.download = filename; a.click();
-      setTimeout(()=>URL.revokeObjectURL(url), 1000);
-    }
-
-    function readFromFile(cb) {
-      const inp = document.createElement('input'); inp.type = 'file'; inp.accept = '.json,application/json';
-      inp.onchange = () => {
-        const file = inp.files[0]; if(!file) return;
-        const reader = new FileReader(); reader.onload = () => cb(reader.result); reader.readAsText(file);
-      };
-      inp.click();
-    }
-
-    // ===== Game Data =====
-    const defaultState = () => ({
-      version: 1,
-      id: uuidv4(),
-      coins: 0,
-      energy: 10, maxEnergy: 10, energyRegen: 1, // per second
-      clickBase: 1, clickBonus: 0, // total CPC = (clickBase + clickBonus) * petMult
-      pets: {}, // key -> count
-      businesses: {}, // key -> count
-      upgrades: { cpc1: 0, energyMax: 0, energyRegen: 0 },
-      airdrops: [],
-      joinTs: now(),
-      playtimeSec: 0,
-      lastTick: now(),
-      lastSave: 0,
-      lastActive: now(),
-      achievements: {},
-    });
-
+    // ===== Game static data =====
     const PETS = [
       { key: 'fluffy', name: 'Флаффи', desc: 'даёт +10% к доходу за клик', price: 50, clickMult: 0.10, cps: 0 },
       { key: 'espresso', name: 'Эспрессо', desc: '+5% к доходу/сек', price: 150, clickMult: 0, cps: 0.05 },
@@ -315,31 +253,15 @@
       { key:'energyRegen', name:'Реген энергии +1', desc:'Увеличивает реген на 1/сек.', base: 250, effect: lvl => 1, type:'flatRegen' },
     ];
 
-    // Cost scaling helpers
     const bizCost = (base, owned) => Math.floor(base * Math.pow(1.15, owned));
     const upgradeCost = (base, lvl) => Math.floor(base * Math.pow(1.8, lvl));
     const petCost = (base, owned) => Math.floor(base * Math.pow(1.35, owned));
 
-    // ===== State =====
-    let S = load() || defaultState();
-
-    function load() {
-      try {
-        const raw = localStorage.getItem('kk_save');
-        if(!raw) return null; const obj = JSON.parse(raw);
-        return obj;
-      } catch(e){ console.warn('Load failed', e); return null; }
-    }
-    function save(force=false){
-      const t = now(); if(!force && t - S.lastSave < 5000) return; // throttle
-      S.lastSave = t; localStorage.setItem('kk_save', JSON.stringify(S));
-    }
-
     // ===== Derived values =====
-    function petMultipliers() {
+    function petMultipliers(S) {
       let clickMult = 1, cpsMult = 1, addRegen = 0, addMax = 0;
       for(const p of PETS){
-        const n = S.pets[p.key] || 0; if(!n) continue;
+        const n = (S.pets?.[p.key]) || 0; if(!n) continue;
         if(p.clickMult) clickMult *= (1 + p.clickMult * n);
         if(p.cps) cpsMult *= (1 + p.cps * n);
         if(p.energyRegen) addRegen += p.energyRegen * n;
@@ -348,25 +270,23 @@
       return { clickMult, cpsMult, addRegen, addMax };
     }
 
-    function totalCps(){
-      const mults = petMultipliers();
-      let cps = 0;
-      for(const b of BIZ){ const n = S.businesses[b.key] || 0; if(!n) continue; cps += b.baseCps * n; }
-      cps *= mults.cpsMult;
-      return cps;
-    }
-
-    function clickValue(){
-      const mults = petMultipliers();
+    function clickValue(S){
+      const mults = petMultipliers(S);
       const base = (S.clickBase + S.clickBonus);
       const upgradeMult = Math.pow(2, S.upgrades.cpc1 || 0);
       return Math.max(1, Math.floor(base * upgradeMult * mults.clickMult));
     }
 
-    function maxEnergy(){ return S.maxEnergy + (S.upgrades.energyMax||0) * 5 + petMultipliers().addMax; }
-    function regenEnergy(){ return S.energyRegen + (S.upgrades.energyRegen||0) * 1 + petMultipliers().addRegen; }
+    function totalCps(S){
+      const mults = petMultipliers(S);
+      let cps = 0; for(const b of BIZ){ const n = S.businesses[b.key]||0; cps += b.baseCps * n; }
+      cps *= mults.cpsMult; return cps;
+    }
 
-    // ===== UI Bindings =====
+    function maxEnergy(S){ return S.maxEnergy + (S.upgrades.energyMax||0) * 5 + petMultipliers(S).addMax; }
+    function regenEnergy(S){ return S.energyRegen + (S.upgrades.energyRegen||0) * 1 + petMultipliers(S).addRegen; }
+
+    // ===== UI Refs =====
     const elCoins = document.getElementById('coins');
     const elEnergyText = document.getElementById('energyText');
     const elEnergyBar = document.getElementById('energyBar');
@@ -377,25 +297,88 @@
     const elBizCount = document.getElementById('bizCount');
     const elPlayerId = document.getElementById('playerId');
 
+    const petTabs = document.getElementById('petTabs');
+    const petsList = document.getElementById('petsList');
+    const upgradesList = document.getElementById('upgradesList');
+    const bizList = document.getElementById('bizList');
+    const elAch = document.getElementById('achievements');
+    const airdropList = document.getElementById('airdropList');
+
+    const modalBackdrop = document.getElementById('modalBackdrop');
+    const airOpen = document.getElementById('airdropOpen');
+    const airId = document.getElementById('air_id');
+    const airReason = document.getElementById('air_reason');
+    const airAmount = document.getElementById('air_amount');
+    const airCancel = document.getElementById('air_cancel');
+    const airSubmit = document.getElementById('air_submit');
+    const airdropCount = document.getElementById('airdropCount');
+    const myReqBtn = document.getElementById('myReq');
+
+    // ===== State in memory (mirror of Firestore) =====
+    let UID = null;
+    let S = null; // synced from Firestore
+
+    // ===== Auth and first load =====
+    onAuthStateChanged(auth, async (user)=>{
+      if(user){ UID = user.uid; initUser(); }
+    });
+    await signInAnonymously(auth);
+
+    async function initUser(){
+      const ref = doc(db, 'users', UID);
+      const snap = await getDoc(ref);
+      if(!snap.exists()){
+        const base = {
+          version: 2,
+          uid: UID,
+          coins: 0,
+          energy: 10, maxEnergy: 10, energyRegen: 1,
+          clickBase: 1, clickBonus: 0,
+          pets: {}, businesses: {}, upgrades: { cpc1: 0, energyMax: 0, energyRegen: 0 },
+          joinTs: serverTimestamp(),
+          playtimeSec: 0,
+          lastActive: serverTimestamp(),
+          lastTick: Date.now(),
+          achievements: {},
+        };
+        await setDoc(ref, base);
+      }
+      onSnapshot(ref, (docSnap)=>{ if(docSnap.exists()){ S = materialize(docSnap.data()); renderAll(); }});
+      // preload my requests count
+      updateAirdropCount();
+    }
+
+    function materialize(d){
+      // convert Firestore Timestamps to numbers where needed
+      const obj = { ...d };
+      obj.pets = obj.pets || {}; obj.businesses = obj.businesses || {}; obj.upgrades = obj.upgrades || {cpc1:0,energyMax:0,energyRegen:0};
+      if(typeof obj.lastTick !== 'number') obj.lastTick = Date.now();
+      if(typeof obj.energy !== 'number') obj.energy = 10;
+      return obj;
+    }
+
+    // ===== Rendering =====
+    let activePetTab = 'all';
+
     function renderTop(){
+      if(!S) return;
       elCoins.textContent = fmt(Math.floor(S.coins));
-      const me = maxEnergy();
-      elEnergyText.textContent = `${Math.floor(S.energy)} / ${me}`;
-      elEnergyBar.style.width = `${(S.energy/me)*100}%`;
-      elClickGain.textContent = fmt(clickValue());
-      elCps.textContent = fmt(totalCps().toFixed(1));
-      elCpc.textContent = fmt(clickValue());
+      const me = maxEnergy(S);
+      const e = clamp(S.energy, 0, me);
+      elEnergyText.textContent = `${Math.floor(e)} / ${me}`;
+      elEnergyBar.style.width = `${(e/me)*100}%`;
+      elClickGain.textContent = fmt(clickValue(S));
+      elCps.textContent = fmt(totalCps(S).toFixed(1));
+      elCpc.textContent = fmt(clickValue(S));
       const petsOwned = Object.values(S.pets).reduce((a,b)=>a+b,0);
       const bizOwned = Object.values(S.businesses).reduce((a,b)=>a+b,0);
       elPetsCount.textContent = fmt(petsOwned);
       elBizCount.textContent = fmt(bizOwned);
-      elPlayerId.textContent = S.id.slice(0,8);
-    }
+      elPlayerId.textContent = UID?.slice(0,8) || '';
 
-    // Pets UI
-    const petTabs = document.getElementById('petTabs');
-    const petsList = document.getElementById('petsList');
-    let activePetTab = 'all';
+      document.getElementById('profileId').textContent = UID || '—';
+      document.getElementById('joinDate').textContent = S.joinTs?.toDate ? S.joinTs.toDate().toLocaleString('ru-RU') : '—';
+    }
 
     function renderPetTabs(){
       petTabs.innerHTML = '';
@@ -406,94 +389,174 @@
         petTabs.appendChild(b);
       }
     }
-
-    function petCategory(p){
-      if(p.energyRegen || p.maxEnergy) return 'energy';
-      if(p.cps) return 'passive';
-      return 'click';
-    }
+    function petCategory(p){ if(p.energyRegen || p.maxEnergy) return 'energy'; if(p.cps) return 'passive'; return 'click'; }
 
     function renderPets(){
       petsList.innerHTML = '';
       for(const p of PETS){
         if(activePetTab!=='all' && petCategory(p)!==activePetTab) continue;
-        const owned = S.pets[p.key]||0;
-        const cost = petCost(p.price, owned);
+        const owned = S?.pets?.[p.key]||0; const cost = petCost(p.price, owned);
         const row = document.createElement('div'); row.className='row';
         const title = document.createElement('div');
         title.innerHTML = `<div class="title">${p.name} × ${owned}</div><div class="subtitle">${p.desc} • Цена: <b>${fmt(cost)}</b></div>`;
         const actions = document.createElement('div'); actions.className='actions';
-        const btn = document.createElement('button'); btn.className='buy'; btn.textContent='Купить'; btn.disabled = S.coins < cost;
-        btn.onclick = ()=>{ if(S.coins>=cost){ S.coins-=cost; S.pets[p.key]=(S.pets[p.key]||0)+1; pulseCoin(-cost); save(true); renderAll(); }};
+        const btn = document.createElement('button'); btn.className='buy'; btn.textContent='Купить'; btn.disabled = (S?.coins||0) < cost;
+        btn.onclick = ()=> buyPet(p, cost);
         actions.appendChild(btn);
         row.appendChild(title); row.appendChild(actions);
         petsList.appendChild(row);
       }
     }
 
-    // Upgrades UI
-    const upgradesList = document.getElementById('upgradesList');
     function renderUpgrades(){
       upgradesList.innerHTML='';
       for(const u of UPGRADES){
-        const lvl = S.upgrades[u.key]||0;
-        const cost = upgradeCost(u.base, lvl);
+        const lvl = S?.upgrades?.[u.key]||0; const cost = upgradeCost(u.base, lvl);
         const row = document.createElement('div'); row.className='row';
         const title = document.createElement('div');
         title.innerHTML = `<div class="title">${u.name} (ур. ${lvl})</div><div class="subtitle">${u.desc} • Цена: <b>${fmt(cost)}</b></div>`;
         const actions = document.createElement('div'); actions.className='actions';
-        const btn = document.createElement('button'); btn.className='buy'; btn.textContent='Улучшить'; btn.disabled = S.coins < cost;
-        btn.onclick = ()=>{ if(S.coins>=cost){ S.coins-=cost; S.upgrades[u.key]=lvl+1; if(u.type==='flatMaxEnergy'){ S.maxEnergy+=u.effect(lvl); } if(u.type==='flatRegen'){ S.energyRegen+=u.effect(lvl);} pulseCoin(-cost); save(true); renderAll(); }};
+        const btn = document.createElement('button'); btn.className='buy'; btn.textContent='Улучшить'; btn.disabled = (S?.coins||0) < cost;
+        btn.onclick = ()=> buyUpgrade(u, cost);
         actions.appendChild(btn);
         row.appendChild(title); row.appendChild(actions);
         upgradesList.appendChild(row);
       }
     }
 
-    // Businesses UI
-    const bizList = document.getElementById('bizList');
     function renderBiz(){
       bizList.innerHTML='';
       for(const b of BIZ){
-        const n = S.businesses[b.key]||0;
-        const cost = bizCost(b.base, n);
+        const n = S?.businesses?.[b.key]||0; const cost = bizCost(b.base, n);
         const row = document.createElement('div'); row.className='row';
         const title = document.createElement('div');
         title.innerHTML = `<div class="title">${b.name} × ${n}</div><div class="subtitle">Доход: ${fmt(b.baseCps*n)}/с • Цена: <b>${fmt(cost)}</b></div>`;
         const actions = document.createElement('div'); actions.className='actions';
-        const btn = document.createElement('button'); btn.className='buy'; btn.textContent='Купить'; btn.disabled = S.coins < cost;
-        btn.onclick = ()=>{ if(S.coins>=cost){ S.coins-=cost; S.businesses[b.key]=n+1; pulseCoin(-cost); save(true); renderAll(); }};
+        const btn = document.createElement('button'); btn.className='buy'; btn.textContent='Купить'; btn.disabled = (S?.coins||0) < cost;
+        btn.onclick = ()=> buyBusiness(b, cost);
         actions.appendChild(btn);
         row.appendChild(title); row.appendChild(actions);
         bizList.appendChild(row);
       }
     }
 
-    // Achievements
     const ACH = [
       { key:'firstClick', name:'Первый клик', cond: s=>s._clicks>=1, reward: 10 },
-      { key:'tenPets', name:'Зоопарк', cond: s=>Object.values(s.pets).reduce((a,b)=>a+b,0)>=10, reward: 250 },
+      { key:'tenPets', name:'Зоопарк', cond: s=>Object.values(s.pets||{}).reduce((a,b)=>a+b,0)>=10, reward: 250 },
       { key:'rich', name:'Первая тысяча', cond: s=>s.coins>=1000, reward: 100 },
-      { key:'bizman', name:'Малый бизнес', cond: s=>Object.values(s.businesses).reduce((a,b)=>a+b,0)>=5, reward: 150 },
+      { key:'bizman', name:'Малый бизнес', cond: s=>Object.values(s.businesses||{}).reduce((a,b)=>a+b,0)>=5, reward: 150 },
     ];
-    const elAch = document.getElementById('achievements');
+
     function renderAch(){
       elAch.innerHTML='';
       for(const a of ACH){
-        const done = !!S.achievements[a.key];
+        const done = !!S.achievements?.[a.key];
         const row = document.createElement('div'); row.className='row';
         row.innerHTML = `<div><div class='title'>${a.name}</div><div class='subtitle'>Награда: ${fmt(a.reward)} монет • ${done? 'Получено ✅' : 'Не получено'}</div></div>`;
         const actions = document.createElement('div'); actions.className='actions';
         const btn = document.createElement('button'); btn.className='buy'; btn.textContent = done ? 'Готово' : 'Забрать'; btn.disabled = done || !a.cond(S);
-        btn.onclick = ()=>{ if(!done && a.cond(S)){ S.achievements[a.key]=true; S.coins += a.reward; pulseCoin(+a.reward); save(true); renderAll(); }};
+        btn.onclick = ()=> claimAch(a);
         actions.appendChild(btn); row.appendChild(actions); elAch.appendChild(row);
       }
     }
 
-    // Click logic & FX
+    function renderAll(){ renderTop(); renderPetTabs(); renderPets(); renderUpgrades(); renderBiz(); renderAch(); }
+
+    // ===== Interactions with Firestore (transactions) =====
+    async function txUpdate(mutator){
+      const ref = doc(db, 'users', UID);
+      await runTransaction(db, async (t)=>{
+        const snap = await t.get(ref);
+        const d = materialize(snap.data());
+        const nd = await mutator(d);
+        t.set(ref, nd, { merge: false });
+      });
+    }
+
+    async function doClick(){
+      await txUpdate(d=>{
+        const me = maxEnergy(d); if(d.energy < 1) return d;
+        d.energy = clamp(d.energy - 1, 0, me);
+        d._clicks = (d._clicks||0) + 1;
+        d.coins += clickValue(d);
+        d.lastActive = serverTimestamp();
+        return d;
+      });
+      pulseCoin(clickValue(S));
+    }
+
+    async function buyPet(p, cost){
+      if((S?.coins||0) < cost) return;
+      await txUpdate(d=>{ if(d.coins < cost) return d; d.coins -= cost; d.pets = d.pets||{}; d.pets[p.key]=(d.pets[p.key]||0)+1; return d; });
+    }
+    async function buyUpgrade(u, cost){
+      if((S?.coins||0) < cost) return;
+      await txUpdate(d=>{
+        if(d.coins < cost) return d; d.coins -= cost; d.upgrades = d.upgrades||{}; d.upgrades[u.key]=(d.upgrades[u.key]||0)+1;
+        if(u.type==='flatMaxEnergy') d.maxEnergy += u.effect(d.upgrades[u.key]-1);
+        if(u.type==='flatRegen') d.energyRegen += u.effect(d.upgrades[u.key]-1);
+        return d;
+      });
+    }
+    async function buyBusiness(b, cost){
+      if((S?.coins||0) < cost) return;
+      await txUpdate(d=>{ if(d.coins < cost) return d; d.coins -= cost; d.businesses = d.businesses||{}; d.businesses[b.key]=(d.businesses[b.key]||0)+1; return d; });
+    }
+
+    async function claimAch(a){
+      await txUpdate(d=>{ if(d.achievements?.[a.key]) return d; if(!a.cond(d)) return d; d.achievements = d.achievements||{}; d.achievements[a.key]=true; d.coins += a.reward; return d; });
+    }
+
+    // Passive income & energy regen — apply every 2 сек, чтобы не спамить запись
+    setInterval(async ()=>{
+      if(!S || !UID) return;
+      const cps = totalCps(S);
+      const regen = regenEnergy(S);
+      await txUpdate(d=>{
+        const dt = Math.min(10, Math.max(1, Math.round((Date.now()-d.lastTick)/1000)));
+        d.coins += cps * dt;
+        d.energy = clamp(d.energy + regen*dt, 0, maxEnergy(d));
+        d.playtimeSec += dt;
+        d.lastTick = Date.now();
+        d.lastActive = serverTimestamp();
+        return d;
+      });
+    }, 2000);
+
+    // ===== Airdrop requests (stored in Firestore) =====
+    function openModal(){ modalBackdrop.style.display='flex'; airId.value = UID; airReason.value=''; airAmount.value=''; }
+    function closeModal(){ modalBackdrop.style.display='none'; }
+    airOpen.onclick = openModal; airCancel.onclick = closeModal;
+
+    airSubmit.onclick = async ()=>{
+      const amount = Math.max(1, parseInt(airAmount.value||'0',10));
+      const reason = (airReason.value||'').trim();
+      if(!reason){ alert('Пожалуйста, укажите причину.'); return; }
+      await addDoc(collection(db, 'airdropRequests'), { uid: UID, reason, amount, status:'pending', createdAt: serverTimestamp() });
+      closeModal(); updateAirdropCount(); alert('Заявка отправлена!');
+    };
+
+    async function updateAirdropCount(){
+      if(!UID) return; const q = query(collection(db, 'airdropRequests'), where('uid','==',UID));
+      const snap = await getDocs(q); document.getElementById('airdropCount').textContent = `Заявок: ${snap.size}`;
+    }
+
+    myReqBtn.onclick = async ()=>{
+      if(!UID) return; airdropList.innerHTML = '';
+      const q = query(collection(db, 'airdropRequests'), where('uid','==',UID), orderBy('createdAt','desc'));
+      const snap = await getDocs(q);
+      snap.forEach(docu=>{
+        const r = docu.data();
+        const row = document.createElement('div'); row.className='row';
+        row.innerHTML = `<div><div class='title'>${fmt(r.amount)} монет</div><div class='subtitle'>${r.reason} • Статус: ${r.status||'pending'}</div></div>`;
+        airdropList.appendChild(row);
+      });
+    };
+
+    // ===== FX & helpers =====
     const clickArea = document.getElementById('clickArea');
     const clickBtn = document.getElementById('clickBtn');
-    S._clicks = S._clicks || 0;
+    clickBtn.addEventListener('click', ()=>{ if(S) doClick(); else shake(clickBtn); });
 
     function pulseCoin(amount){
       const f = document.createElement('div'); f.className='floating';
@@ -502,112 +565,22 @@
       f.textContent = (amount>=0? '+':'') + fmt(Math.floor(amount));
       clickArea.appendChild(f); setTimeout(()=>f.remove(), 1200);
     }
-
-    function doClick(){
-      const gain = clickValue();
-      if(S.energy < 1) { shake(clickBtn); return; }
-      S.energy = clamp(S.energy - 1, 0, maxEnergy());
-      S.coins += gain; S._clicks++;
-      pulseCoin(gain);
-      renderTop();
-      save();
-    }
-
     function shake(el){ el.style.transform = 'translateX(1px)'; setTimeout(()=>el.style.transform='', 120); }
 
-    clickBtn.addEventListener('click', doClick);
-
-    // Passive loop (1/sec)
-    setInterval(()=>{
-      // cps
-      const cps = totalCps();
-      if(cps>0){ S.coins += cps; }
-      // energy regen
-      S.energy = clamp(S.energy + regenEnergy(), 0, maxEnergy());
-      // playtime
-      S.playtimeSec += 1;
-      renderTop();
-      save();
-    }, 1000);
-
-    // Autosave
-    setInterval(()=> save(true), 15000);
-
-    // Offline progress on load
-    (function handleOffline(){
-      const dtSec = Math.min(60*60*8, Math.max(0, Math.floor((now()-S.lastActive)/1000))); // cap 8h
-      if(dtSec>0){
-        const earn = totalCps()*dtSec;
-        S.coins += earn;
-        document.getElementById('offlineInfo').textContent = `Вы были оффлайн ${Math.floor(dtSec/60)} мин — начислено ${fmt(Math.floor(earn))} монет.`;
-      } else {
-        document.getElementById('offlineInfo').textContent = '—';
-      }
-      S.lastActive = now();
-    })();
-
-    // Airdrop modal logic (local simulation)
-    const modalBackdrop = document.getElementById('modalBackdrop');
-    const airOpen = document.getElementById('airdropOpen');
-    const airExport = document.getElementById('exportAirdrops');
-    const airId = document.getElementById('air_id');
-    const airReason = document.getElementById('air_reason');
-    const airAmount = document.getElementById('air_amount');
-    const airCancel = document.getElementById('air_cancel');
-    const airSubmit = document.getElementById('air_submit');
-    const airdropCount = document.getElementById('airdropCount');
-
-    function updateAirdropCount(){ airdropCount.textContent = `Заявок: ${S.airdrops.length}`; }
-    function openModal(){ modalBackdrop.style.display='flex'; airId.value = S.id; airReason.value=''; airAmount.value=''; }
-    function closeModal(){ modalBackdrop.style.display='none'; }
-
-    airOpen.onclick = openModal; airCancel.onclick = closeModal;
-    airSubmit.onclick = ()=>{
-      const amount = Math.max(1, parseInt(airAmount.value||'0',10));
-      const reason = (airReason.value||'').trim();
-      if(!reason){ alert('Пожалуйста, укажите причину.'); return; }
-      S.airdrops.push({ id:S.id, reason, amount, ts: now(), status:'pending' });
-      updateAirdropCount(); save(true); closeModal();
-      // small chance of instant approval (fun)
-      if(Math.random()<0.05){
-        S.coins += amount; pulseCoin(amount); S.airdrops[S.airdrops.length-1].status='approved'; renderAll(); save(true);
-        alert('Сюрприз! Ваш airdrop мгновенно одобрен 🎉');
-      } else {
-        alert('Заявка отправлена! (Сохранена локально)');
-      }
-    };
-
-    airExport.onclick = ()=>{
-      saveToFile(`airdrop_requests_${S.id.slice(0,8)}.json`, JSON.stringify(S.airdrops, null, 2));
-    };
-
-    // Profile actions
-    document.getElementById('profileId').textContent = S.id;
-    document.getElementById('joinDate').textContent = new Date(S.joinTs).toLocaleString('ru-RU');
+    // Profile extras
     document.getElementById('copyId').onclick = async ()=>{
-      try { await navigator.clipboard.writeText(S.id); alert('ID скопирован!'); } catch(e){ alert('Не удалось скопировать.'); }
+      try { await navigator.clipboard.writeText(UID||''); alert('UID скопирован!'); } catch(e){ alert('Не удалось скопировать.'); }
     };
 
-    function renderPlaytime(){
-      const m = Math.floor(S.playtimeSec/60), h=Math.floor(m/60), mm=m%60;
-      document.getElementById('playtime').textContent = h>0? `${h} ч ${mm} мин` : `${mm} мин`;
-    }
-    setInterval(renderPlaytime, 1000); renderPlaytime();
+    function renderPlaytime(){ if(!S) return; const m = Math.floor((S.playtimeSec||0)/60), h=Math.floor(m/60), mm=m%60; document.getElementById('playtime').textContent = h>0? `${h} ч ${mm} мин` : `${mm} мин`; }
+    setInterval(renderPlaytime, 1000);
 
-    // Save export/import/wipe
-    document.getElementById('exportSave').onclick = ()=> saveToFile(`kotokombat_save_${S.id.slice(0,8)}.json`, JSON.stringify(S));
-    document.getElementById('importSave').onclick = ()=> readFromFile(txt=>{ try { const obj=JSON.parse(txt); if(obj && obj.id){ S=obj; save(true); renderAll(); alert('Сохранение импортировано!'); } else alert('Файл не похож на сохранение.'); } catch(e){ alert('Ошибка импорта: '+e.message); } });
-    document.getElementById('wipe').onclick = ()=>{ if(confirm('Точно сбросить прогресс?')){ localStorage.removeItem('kk_save'); S = defaultState(); renderAll(); save(true); } };
+    // Local cache (optional backup of last snapshot)
+    document.getElementById('exportCache').onclick = ()=>{ const cache = { UID, S }; const blob = new Blob([JSON.stringify(cache)], {type:'application/json'}); const url = URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download=`kk_cache_${(UID||'user').slice(0,8)}.json`; a.click(); setTimeout(()=>URL.revokeObjectURL(url), 1000); };
+    document.getElementById('wipeCache').onclick = ()=>{ localStorage.clear(); alert('Локальный кэш очищен. (Облако — без изменений)'); };
 
-    // Initial renders
-    function renderAll(){ renderTop(); renderPetTabs(); renderPets(); renderUpgrades(); renderBiz(); renderAch(); updateAirdropCount(); document.getElementById('profileId').textContent=S.id; document.getElementById('playerId').textContent=S.id.slice(0,8); document.getElementById('joinDate').textContent=new Date(S.joinTs).toLocaleString('ru-RU'); }
-    renderAll();
-
-    // Before unload update lastActive
-    window.addEventListener('beforeunload', ()=>{ S.lastActive = now(); save(true); });
-
-    // Perf: disable heavy paints on blur
-    document.addEventListener('visibilitychange', ()=>{ if(document.hidden) save(true); });
+    // Render bootstrap
+    renderPetTabs();
   </script>
 </body>
 </html>
