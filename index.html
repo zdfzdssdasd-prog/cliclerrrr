@@ -105,13 +105,72 @@
 
     .footer { grid-column: 1 / -1; text-align: center; color: var(--muted); padding: 8px; font-size: 13px; }
 
+    /* Анимации для v4 */
+    /* Плавное появление карточек и рядов */
+    .card, .row {
+      animation: fadeInUp 0.6s ease forwards;
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    @keyframes fadeInUp {
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Улучшенная анимация нажатия на большую кнопку */
+    .big-btn {
+      transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1); /* Более "пружинящая" анимация */
+    }
+    .big-btn:active {
+      transform: translateY(4px) scale(0.98); /* Более выраженное нажатие */
+      box-shadow: 0 2px 8px rgba(53,208,255,0.3), 0 0 0 rgba(0,0,0,0.25) inset;
+    }
+
+    /* Анимация "пульса" для доступных кнопок покупки */
+    button.buy:not(:disabled) {
+      position: relative;
+      overflow: hidden;
+    }
+    button.buy:not(:disabled):after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+      animation: shine 1.5s ease-in-out infinite;
+    }
+    @keyframes shine {
+      100% { left: 100%; }
+    }
+
+    /* Анимация обновления числовых значений */
+    .pill .num {
+      transition: all 0.5s ease-out;
+    }
+    .num.updated {
+      color: var(--coin);
+      text-shadow: 0 0 8px currentColor;
+      animation: pulse 0.5s ease;
+    }
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.15); }
+      100% { transform: scale(1); }
+    }
+
+    /* Анимация для энергии */
+    .bar.energy > .fill {
+      transition: width 0.8s cubic-bezier(0.22, 0.61, 0.36, 1);
+    }
+
     @media (max-width: 1100px) { .app { grid-template-columns: 1fr; } header.topbar { position: static; } }
   </style>
 </head>
 <body>
   <div class="app">
     <header class="topbar">
-      <div class="brand"><div class="logo"></div> KotoKombat <span class="muted">v3.0 (Firebase) — Daily & Boosts</span></div>
+      <div class="brand"><div class="logo"></div> KotoKombat <span class="muted">v4.0 (Firebase) — Leaderboard & Animations</span></div>
       <div class="statline">
         <div class="pill">💰 Монеты: <span id="coins" class="num">0</span></div>
         <div class="pill">⚡ Энергия: <span id="energyText" class="num">0/0</span></div>
@@ -124,7 +183,7 @@
     <section class="col">
       <div class="card">
         <h2>🐾 Котокролики</h2>
-        <div class="muted">Заводите милых котокроликов — они усиливают клики и пассивный доход.</div>
+        <div class="muted">Заводите милые� котокроликов — они усиливают клики и пассивный доход.</div>
         <div class="tabs" id="petTabs"></div>
         <div class="list" id="petsList"></div>
       </div>
@@ -178,7 +237,14 @@
         </div>
       </div>
 
-    <section class="col">
+      <div class="card">
+        <h2>🏆 Таблица лидеров</h2>
+        <div class="muted">Топ-10 игроков по монетам.</div>
+        <div class="list" id="leaderboardList">
+          <div class="muted" id="leaderboardStatus">Загрузка...</div>
+        </div>
+      </div>
+
       <div class="card">
         <h2>🏪 Бизнесы</h2>
         <div class="muted">Авто-доход каждую секунду. Стоимость растёт с покупками.</div>
@@ -187,7 +253,7 @@
 
       <div class="card solid">
         <h2>🪂 Airdrop (онлайн)</h2>
-        <div class="muted">Заявка уходит в Firestore.</div>
+        <div class="muted">Заявка уходит в Firestore. Админ может одобрить и начислить монеты.</div>
         <div class="list">
           <button class="buy" id="airdropOpen">Создать заявку</button>
           <button class="buy" id="myReq">Мои заявки</button>
@@ -231,12 +297,26 @@
   </div>
 
   <script type="module">
+    // ===== Базовая защита от простого редактирования в DevTools =====
+    document.addEventListener('keydown', function(e) {
+      // F12, Ctrl+Shift+I, Ctrl+Shift+C, Ctrl+U
+      if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && e.key === 'I') || (e.ctrlKey && e.shiftKey && e.key === 'C') || (e.ctrlKey && e.key === 'U')) {
+        e.preventDefault();
+        alert('Отладка отключена для безопасности игры.');
+        return false;
+      }
+    });
+    // Усложнение работы с консолью
+    setInterval(() => {
+      console.clear();
+      console.log('%c🚫 Стоп!', 'color: red; font-size: 40px; font-weight: bold;');
+      console.log('%cЭто браузерная консоль. Если вам сказали что-то здесь ввести или скопировать, это мошенничество. Изменение данных игры приведет к блокировке аккаунта.', 'color: white; font-size: 16px;');
+    }, 2000);
+
     // ===== Firebase SDK (modular) =====
-    // 1) Создай проект в Firebase и включи Authentication (Anonymous) и Firestore (режим с правилами ниже).
-    // 2) Заполни конфиг ниже своими значениями.
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
     import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-    import { getFirestore, doc, setDoc, getDoc, onSnapshot, runTransaction, serverTimestamp, collection, addDoc, query, where, getDocs, orderBy } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    import { getFirestore, doc, setDoc, getDoc, onSnapshot, runTransaction, serverTimestamp, collection, addDoc, query, where, getDocs, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyCEAzZ7hRe1PuVBivbkr-bBCsXt4_NqbWU",
@@ -331,6 +411,8 @@
     const bizList = document.getElementById('bizList');
     const elAch = document.getElementById('achievements');
     const airdropList = document.getElementById('airdropList');
+    const leaderboardList = document.getElementById('leaderboardList');
+    const leaderboardStatus = document.getElementById('leaderboardStatus');
 
     const modalBackdrop = document.getElementById('modalBackdrop');
     const airOpen = document.getElementById('airdropOpen');
@@ -374,6 +456,7 @@
       onSnapshot(ref, (docSnap)=>{ if(docSnap.exists()){ S = materialize(docSnap.data()); renderAll(); }});
       // preload my requests count
       updateAirdropCount();
+      loadLeaderboard();
     }
 
     function materialize(d){
@@ -390,11 +473,26 @@
 
     function renderTop(){
       if(!S) return;
-      elCoins.textContent = fmt(Math.floor(S.coins));
+
+      // Анимация изменения монет
+      const newCoins = Math.floor(S.coins);
+      if (newCoins !== Number(elCoins.textContent.replace(/\s/g, ''))) {
+        elCoins.textContent = fmt(newCoins);
+        elCoins.classList.add('updated');
+        setTimeout(() => elCoins.classList.remove('updated'), 500);
+      }
+
+      // Анимация изменения энергии
       const me = maxEnergy(S);
       const e = clamp(S.energy, 0, me);
-      elEnergyText.textContent = `${Math.floor(e)} / ${me}`;
+      const newEnergyText = `${Math.floor(e)} / ${me}`;
+      if (newEnergyText !== elEnergyText.textContent) {
+        elEnergyText.textContent = newEnergyText;
+        elEnergyText.classList.add('updated');
+        setTimeout(() => elEnergyText.classList.remove('updated'), 500);
+      }
       elEnergyBar.style.width = `${(e/me)*100}%`;
+
       elClickGain.textContent = fmt(clickValue(S));
       elCps.textContent = fmt(totalCps(S).toFixed(1));
       elCpc.textContent = fmt(clickValue(S));
@@ -631,24 +729,92 @@
 
     function canClaimDaily(){
       const last = S?.dailyClaimAt || 0;
-      const leftMs = (last + 20*60*60*1000) - Date.now(); // 20h cooldown
-      return leftMs <= 0;
+      const cooldownMs = 20 * 60 * 60 * 1000; // 20 часов
+      return (Date.now() - last) >= cooldownMs;
     }
     function updateDailyUI(){
       dailyStatus.textContent = canClaimDaily()? 'доступен' : 'ожидание';
     }
     setInterval(updateDailyUI, 2000);
 
-    dailyBtn.onclick = ()=>{
-      if(!S) return;
-      if(!canClaimDaily()) return;
-      const reward = Math.floor(250 + Math.random()*500);
-      S.coins += reward;
-      S.dailyClaimAt = Date.now();
-      alert('Награда: ' + reward + ' монет!');
-      renderTop();
+    dailyBtn.onclick = async () => {
+      if (!S || !UID) return;
+      if (!canClaimDaily()) return; // Быстрая проверка на клиенте для UX
+
+      const reward = Math.floor(250 + Math.random() * 500);
+      
+      // Используем транзакцию для надежности
+      await txUpdate(async (d) => {
+        // Повторяем проверку уже на актуальных данных с сервера
+        const lastServerClaim = d.dailyClaimAt || 0;
+        const cooldownMs = 20 * 60 * 60 * 1000; // 20 часов
+        if (Date.now() - lastServerClaim < cooldownMs) {
+          // Если уже забрали, выходим из транзакции
+          console.log("Ежедневная награда уже была получена (проверено на сервере)");
+          return d;
+        }
+        
+        // Если можно забрать - начисляем и обновляем время
+        d.coins += reward;
+        d.dailyClaimAt = Date.now(); // Сохраняем время получения на сервере
+        alert('Награда: ' + reward + ' монет!');
+        return d;
+      });
+      // renderTop() вызовется автоматически после получения нового снепшота от Firestore
     };
 
+    // ===== Leaderboard =====
+    async function loadLeaderboard() {
+      try {
+        leaderboardStatus.textContent = 'Загрузка...';
+        // Создаем запрос к коллекции 'users', сортируем по 'coins' по убыванию, ограничиваем 10 документами.
+        const q = query(collection(db, 'users'), orderBy('coins', 'desc'), limit(10));
+        const querySnapshot = await getDocs(q);
+
+        leaderboardList.innerHTML = ''; // Очищаем статус
+
+        let rank = 1;
+        querySnapshot.forEach((doc) => {
+          const userData = doc.data();
+          // Пропускаем документы без данных или с нулевым балансом
+          if (!userData || typeof userData.coins === 'undefined') return;
+
+          const row = document.createElement('div');
+          row.className = 'row';
+          // Форматируем UID для красоты
+          const shortUid = userData.uid ? userData.uid.substring(0, 6) + '...' : '???';
+          
+          row.innerHTML = `
+            <div>
+              <div class="title">#${rank} ${shortUid}</div>
+              <div class="subtitle">${fmt(Math.floor(userData.coins))} монет</div>
+            </div>
+          `;
+          
+          // Подсвечиваем текущего игрока
+          if (userData.uid === UID) {
+            row.style.background = 'linear-gradient(135deg, rgba(124,92,255,0.25), transparent)';
+            row.style.borderColor = 'var(--accent)';
+          }
+
+          leaderboardList.appendChild(row);
+          rank++;
+        });
+
+        if (rank === 1) {
+          leaderboardStatus.textContent = 'Нет данных игроков.';
+          leaderboardList.appendChild(leaderboardStatus);
+        }
+      } catch (error) {
+        console.error("Ошибка загрузки таблицы лидеров:", error);
+        leaderboardStatus.textContent = 'Ошибка загрузки.';
+        leaderboardList.innerHTML = '';
+        leaderboardList.appendChild(leaderboardStatus);
+      }
+    }
+
+    // Загружаем таблицу лидеров при старте и затем каждые 30 секунд
+    setInterval(loadLeaderboard, 30000); // Обновляем каждые 30 сек
 
     // ===== FX & helpers =====
     const clickArea = document.getElementById('clickArea');
