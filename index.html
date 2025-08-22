@@ -72,9 +72,77 @@
     h2 { margin: 0 0 10px; font-size: 18px; letter-spacing: 0.3px; }
     .muted { color: var(--muted); font-size: 14px; }
 
-    .click-area { display: grid; place-items: center; min-height: 340px; border-radius: var(--radius); background: radial-gradient(400px 180px at 50% 0%, rgba(124,92,255,0.15), rgba(124,92,255,0)), radial-gradient(400px 180px at 50% 100%, rgba(53,208,255,0.12), rgba(53,208,255,0)), linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); border: 1px dashed rgba(255,255,255,0.16); position: relative; overflow: hidden; }
-    .big-btn { border: none; cursor: pointer; padding: 18px 26px; border-radius: 20px; background: linear-gradient(135deg, #8c6bff, #35d0ff); color: #0b0e1e; font-weight: 900; letter-spacing: 0.5px; font-size: 20px; box-shadow: 0 8px 20px rgba(53,208,255,0.25), 0 2px 0 rgba(0,0,0,0.25) inset; transition: transform 0.08s ease, filter 0.2s ease; user-select: none; }
-    .big-btn:active { transform: translateY(1px) scale(0.995); filter: brightness(0.95); }
+    .click-area {
+      display: grid;
+      place-items: center;
+      min-height: 340px;
+      border-radius: var(--radius);
+      background: radial-gradient(400px 180px at 50% 0%, rgba(124,92,255,0.15), rgba(124,92,255,0)), radial-gradient(400px 180px at 50% 100%, rgba(53,208,255,0.12), rgba(53,208,255,0)), linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      border: 1px dashed rgba(255,255,255,0.16);
+      position: relative;
+      overflow: hidden;
+    }
+        /* Контейнер для кнопки и информационной панели */
+        .click-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 60px; /* ← ДОБАВЬТЕ ЭТУ СТРОКУ */
+    }
+    /* Обновленная круглая кнопка с полноразмерным изображением */
+    .big-btn {
+      border: none;
+      cursor: pointer;
+      width: 180px;
+      height: 180px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #8c6bff, #35d0ff);
+      color: #0b0e1e;
+      box-shadow: 0 12px 25px rgba(53,208,255,0.3), 0 4px 0 rgba(0,0,0,0.25) inset;
+      transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+      user-select: none;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+    }
+    /* Изображение на всю кнопку */
+    .big-btn .btn-image {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      background-image: url('https://i.pinimg.com/originals/12/78/0d/12780d3af6fc0b69b64ceceb074675ef.jpg');
+      background-size: cover;
+      background-position: center;
+      transition: transform 0.2s ease;
+    }
+    .big-btn:active .btn-image {
+      transform: scale(0.95);
+    }
+    .big-btn:active {
+      transform: translateY(4px);
+      box-shadow: 0 6px 15px rgba(53,208,255,0.2), 0 0 0 rgba(0,0,0,0.25) inset;
+    }
+    /* Панель с информацией о клике */
+    .click-info-panel {
+      background: linear-gradient(135deg, rgba(124,92,255,0.25), rgba(53,208,255,0.15));
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 12px;
+      padding: 10px 20px;
+      font-weight: 700;
+      font-size: 16px;
+      text-align: center;
+      min-width: 150px;
+      box-shadow: var(--shadow);
+      /* Гарантируем, что текст не переносится и не обрезается */
+      white-space: nowrap;
+      overflow: visible;
+      /* Центрируем панель относительно кнопки */
+      margin-top: 10px;
+    }
 
     .floating { position: absolute; font-weight: 800; pointer-events: none; opacity: 0; animation: pop 900ms ease forwards; }
     @keyframes pop { 0% { transform: translateY(0) scale(0.6); opacity: 0; } 15% { opacity: 1; } 100% { transform: translateY(-40px) scale(1); opacity: 0; } }
@@ -84,10 +152,36 @@
     .bar.energy > .fill { background: linear-gradient(90deg, #8affff, #35d0ff); }
 
     .list { display: grid; gap: 10px; }
-    .row { display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: center; padding: 10px; border-radius: var(--radius-sm); background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.03)); border: 1px solid rgba(255,255,255,0.16); }
+    /* Обновленный .row для иконок питомцев */
+    .row {
+      display: grid;
+      grid-template-columns: auto 1fr auto; /* Иконка, текст, кнопка */
+      gap: 12px;
+      align-items: center;
+      padding: 12px;
+      border-radius: var(--radius-sm);
+      background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.03));
+      border: 1px solid rgba(255,255,255,0.16);
+    }
+    .row .text-content {
+      min-width: 0; /* Предотвращает переполнение контента */
+    }
     .row .title { font-weight: 700; }
     .row .subtitle { font-size: 13px; color: var(--muted); }
     .row .actions { display: flex; gap: 8px; align-items: center; }
+
+    /* Место для иконок питомцев */
+        /* Квадратные иконки питомцев со скругленными углами */
+    .pet-icon {
+      width: 50px;
+      height: 50px;
+      border-radius: 12px; /* Закругленные углы */
+      background-color: rgba(255,255,255,0.1);
+      background-size: cover;
+      background-position: center;
+      flex-shrink: 0;
+      border: 2px solid rgba(255,255,255,0.2);
+    }
 
     button.buy { border: 1px solid rgba(255,255,255,0.22); background: linear-gradient(135deg, rgba(124,92,255,0.30), rgba(53,208,255,0.24)); color: var(--text); border-radius: 12px; padding: 8px 12px; cursor: pointer; font-weight: 700; transition: transform 0.08s ease, filter 0.2s ease; box-shadow: var(--shadow); white-space: nowrap; }
     button.buy:disabled { filter: grayscale(0.8) opacity(0.6); cursor: not-allowed; }
@@ -164,13 +258,79 @@
       transition: width 0.8s cubic-bezier(0.22, 0.61, 0.36, 1);
     }
 
-    @media (max-width: 1100px) { .app { grid-template-columns: 1fr; } header.topbar { position: static; } }
+        @media (max-width: 1100px) {
+      .app {
+        grid-template-columns: 1fr;
+        padding: 12px;
+        gap: 12px;
+      }
+      header.topbar {
+        position: static;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+      }
+      .statline {
+        justify-content: center;
+        width: 100%;
+      }
+      /* Увеличиваем зону клика для тапов на мобильных */
+      .big-btn {
+        width: 160px;
+        height: 160px;
+      }
+      .click-info-panel {
+        font-size: 14px;
+        padding: 8px 16px;
+        min-width: 130px;
+      }
+      button.buy, .tab {
+        min-height: 44px;
+        padding: 12px 16px;
+      }
+      .row {
+        grid-template-columns: auto 1fr;
+      }
+      .row .actions {
+        grid-column: 1 / -1;
+        justify-self: end;
+        margin-top: 8px;
+      }
+    }
+
+    /* Еще более мелкие экраны */
+    @media (max-width: 600px) {
+      .pill {
+        font-size: 14px;
+        padding: 6px 10px;
+      }
+      .brand .muted {
+        display: none;
+      }
+      .click-area {
+        min-height: 280px;
+      }
+      .big-btn {
+        width: 140px;
+        height: 140px;
+      }
+      .click-info-panel {
+        font-size: 13px;
+        padding: 6px 12px;
+        min-width: 110px;
+      }
+      /* Уменьшаем иконки питомцев на очень маленьких экранах */
+      .pet-icon {
+        width: 40px;
+        height: 40px;
+      }
+    }
   </style>
 </head>
 <body>
   <div class="app">
     <header class="topbar">
-      <div class="brand"><div class="logo"></div> KotoKombat <span class="muted">v4.0 (Firebase) — Leaderboard & Animations</span></div>
+      <div class="brand"><div class="logo"></div> KotoKombat <span class="muted">v5.0 (Firebase) — Instant UI & Mobile</span></div>
       <div class="statline">
         <div class="pill">💰 Монеты: <span id="coins" class="num">0</span></div>
         <div class="pill">⚡ Энергия: <span id="energyText" class="num">0/0</span></div>
@@ -196,8 +356,15 @@
     </section>
 
     <section class="col">
-      <div class="card click-area" id="clickArea">
-        <button class="big-btn" id="clickBtn">КЛИК — +<span id="clickGain">1</span> 💰</button>
+            <div class="card click-area" id="clickArea">
+        <div class="click-container">
+          <button class="big-btn" id="clickBtn">
+            <div class="btn-image"></div>
+          </button>
+          <div class="click-info-panel">
+            КЛИК — +<span id="clickGain">1</span> 💰
+          </div>
+        </div>
         <div style="position:absolute;left:16px;right:16px;bottom:16px;display:grid;gap:8px;">
           <div class="muted">⚡ Энергия</div>
           <div class="bar energy"><div id="energyBar" class="fill" style="width:0%"></div></div>
@@ -338,7 +505,7 @@
 
     // ===== Game static data =====
     const PETS = [
-      { key: 'fluffy', name: 'Флаффи', desc: 'даёт +10% к доходу за клик', price: 50, clickMult: 0.10, cps: 0 },
+      { key: 'fluffy', name: 'Флаффи', desc: 'даёт +10% к доходу за клик', price: 50, clickMult: 0.10, cps: 0, image: 'https://i.ytimg.com/vi/mcj7WWvzpas/maxresdefault.jpg' },
       { key: 'espresso', name: 'Эспрессо', desc: '+5% к доходу/сек', price: 150, clickMult: 0, cps: 0.05 },
       { key: 'spark', name: 'Спарк', desc: '+1 к регену энергии', price: 250, clickMult: 0, cps: 0, energyRegen: 1 },
       { key: 'jumper', name: 'Джампер', desc: '+2 к максимуму энергии', price: 200, clickMult: 0, cps: 0, maxEnergy: 2 },
@@ -517,19 +684,32 @@
     }
     function petCategory(p){ if(p.energyRegen || p.maxEnergy) return 'energy'; if(p.cps) return 'passive'; return 'click'; }
 
-    function renderPets(){
+    // ===== v5: Рендеринг питомцев с местом для иконки =====
+            function renderPets(){
       petsList.innerHTML = '';
       for(const p of PETS){
         if(activePetTab!=='all' && petCategory(p)!==activePetTab) continue;
         const owned = S?.pets?.[p.key]||0; const cost = petCost(p.price, owned);
         const row = document.createElement('div'); row.className='row';
-        const title = document.createElement('div');
-        title.innerHTML = `<div class="title">${p.name} × ${owned}</div><div class="subtitle">${p.desc} • Цена: <b>${fmt(cost)}</b></div>`;
+        
+        // Контейнер для иконки
+        const icon = document.createElement('div'); icon.className='pet-icon';
+        // ← ДОБАВЬТЕ ЭТУ СТРОКУ ДЛЯ ИЗОБРАЖЕНИЯ:
+        if (p.image) {
+          icon.style.backgroundImage = `url('${p.image}')`;
+        }
+        
+        const textContent = document.createElement('div'); textContent.className='text-content';
+        textContent.innerHTML = `<div class="title">${p.name} × ${owned}</div><div class="subtitle">${p.desc} • Цена: <b>${fmt(cost)}</b></div>`;
+        
         const actions = document.createElement('div'); actions.className='actions';
         const btn = document.createElement('button'); btn.className='buy'; btn.textContent='Купить'; btn.disabled = (S?.coins||0) < cost;
         btn.onclick = ()=> buyPet(p, cost);
         actions.appendChild(btn);
-        row.appendChild(title); row.appendChild(actions);
+        
+        row.appendChild(icon);
+        row.appendChild(textContent);
+        row.appendChild(actions);
         petsList.appendChild(row);
       }
     }
@@ -588,7 +768,91 @@
 
     function renderAll(){ renderTop(); renderPetTabs(); renderPets(); renderUpgrades(); renderBiz(); renderAch(); }
 
-    // ===== Interactions with Firestore (transactions) =====
+    // ===== v5: Оптимистичные Interactions =====
+    async function buyPet(p, cost){
+      if((S?.coins||0) < cost) return;
+      
+      // 1. Оптимистичное обновление UI
+      S.coins -= cost;
+      S.pets[p.key] = (S.pets[p.key] || 0) + 1;
+      renderAll(); // Перерисовываем всё, чтобы обновить счетчики и цены
+
+      // 2. Асинхронная отправка на сервер
+      try {
+        await txUpdate(d => {
+          if (d.coins < cost) throw new Error("Not enough coins on server");
+          d.coins -= cost;
+          d.pets = d.pets || {};
+          d.pets[p.key] = (d.pets[p.key] || 0) + 1;
+          return d;
+        });
+      } catch (error) {
+        // 3. Откат в случае ошибки сервера
+        console.error("Transaction failed:", error);
+        S.coins += cost; // Возвращаем деньги
+        S.pets[p.key] -= 1; // Убираем питомца
+        if (S.pets[p.key] <= 0) delete S.pets[p.key];
+        renderAll(); // Возвращаем UI в исходное состояние
+        alert("Ошибка покупки: " + error.message);
+      }
+    }
+
+    async function buyUpgrade(u, cost){
+      if((S?.coins||0) < cost) return;
+      
+      S.coins -= cost;
+      S.upgrades[u.key] = (S.upgrades[u.key] || 0) + 1;
+      // Немедленно применяем эффекты улучшений, которые влияют на вычисляемые значения
+      if(u.type==='flatMaxEnergy') S.maxEnergy += u.effect(S.upgrades[u.key]-1);
+      if(u.type==='flatRegen') S.energyRegen += u.effect(S.upgrades[u.key]-1);
+      renderAll();
+
+      try {
+        await txUpdate(d => {
+          if (d.coins < cost) throw new Error("Not enough coins on server");
+          d.coins -= cost;
+          d.upgrades = d.upgrades || {};
+          d.upgrades[u.key] = (d.upgrades[u.key] || 0) + 1;
+          if(u.type==='flatMaxEnergy') d.maxEnergy += u.effect(d.upgrades[u.key]-1);
+          if(u.type==='flatRegen') d.energyRegen += u.effect(d.upgrades[u.key]-1);
+          return d;
+        });
+      } catch (error) {
+        console.error("Transaction failed:", error);
+        S.coins += cost;
+        S.upgrades[u.key] -= 1;
+        if(u.type==='flatMaxEnergy') S.maxEnergy -= u.effect(S.upgrades[u.key]);
+        if(u.type==='flatRegen') S.energyRegen -= u.effect(S.upgrades[u.key]);
+        renderAll();
+        alert("Ошибка улучшения: " + error.message);
+      }
+    }
+
+    async function buyBusiness(b, cost){
+      if((S?.coins||0) < cost) return;
+      
+      S.coins -= cost;
+      S.businesses[b.key] = (S.businesses[b.key] || 0) + 1;
+      renderAll();
+
+      try {
+        await txUpdate(d => {
+          if (d.coins < cost) throw new Error("Not enough coins on server");
+          d.coins -= cost;
+          d.businesses = d.businesses || {};
+          d.businesses[b.key] = (d.businesses[b.key] || 0) + 1;
+          return d;
+        });
+      } catch (error) {
+        console.error("Transaction failed:", error);
+        S.coins += cost;
+        S.businesses[b.key] -= 1;
+        if (S.businesses[b.key] <= 0) delete S.businesses[b.key];
+        renderAll();
+        alert("Ошибка покупки бизнеса: " + error.message);
+      }
+    }
+
     async function txUpdate(mutator){
       const ref = doc(db, 'users', UID);
       await runTransaction(db, async (t)=>{
@@ -608,24 +872,6 @@
       S.coins += gain;
       renderTop();
       pulseCoin(gain);
-    }
-
-    async function buyPet(p, cost){
-      if((S?.coins||0) < cost) return;
-      await txUpdate(d=>{ if(d.coins < cost) return d; d.coins -= cost; d.pets = d.pets||{}; d.pets[p.key]=(d.pets[p.key]||0)+1; return d; });
-    }
-    async function buyUpgrade(u, cost){
-      if((S?.coins||0) < cost) return;
-      await txUpdate(d=>{
-        if(d.coins < cost) return d; d.coins -= cost; d.upgrades = d.upgrades||{}; d.upgrades[u.key]=(d.upgrades[u.key]||0)+1;
-        if(u.type==='flatMaxEnergy') d.maxEnergy += u.effect(d.upgrades[u.key]-1);
-        if(u.type==='flatRegen') d.energyRegen += u.effect(d.upgrades[u.key]-1);
-        return d;
-      });
-    }
-    async function buyBusiness(b, cost){
-      if((S?.coins||0) < cost) return;
-      await txUpdate(d=>{ if(d.coins < cost) return d; d.coins -= cost; d.businesses = d.businesses||{}; d.businesses[b.key]=(d.businesses[b.key]||0)+1; return d; });
     }
 
     async function claimAch(a){
@@ -672,7 +918,9 @@
       const reason = (airReason.value||'').trim();
       if(!reason){ alert('Пожалуйста, укажите причину.'); return; }
       await addDoc(collection(db, 'airdropRequests'), { uid: UID, reason, amount, status:'pending', createdAt: serverTimestamp() });
-      closeModal(); updateAirdropCount(); alert('Заявка отправлена!');
+      closeModal();
+      updateAirdropCount();
+      alert('Заявка отправлена!');
     };
 
     async function updateAirdropCount(){
